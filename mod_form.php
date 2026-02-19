@@ -67,6 +67,14 @@ class mod_techproject_mod_form extends moodleform_mod {
 
         $this->standard_intro_elements();
 
+        if (empty($this->_instance)) {
+            $mform->addElement('header', 'aiheader', get_string('aiheader', 'techproject'));
+            $mform->addElement('textarea', 'aiinstructions', get_string('aiinstructions', 'techproject'),
+                ['rows' => 6, 'cols' => 80]);
+            $mform->addHelpButton('aiinstructions', 'aiinstructions', 'techproject');
+            $mform->setType('aiinstructions', PARAM_TEXT);
+        }
+
         $startyear = date('Y', time()) - 5;
         $options = array('optional' => true, 'startyear' => $startyear);
         $mform->addElement('date_time_selector', 'projectstart', get_string('projectstart', 'techproject'), $options);

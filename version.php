@@ -26,12 +26,12 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2025011400;  // The current module version (Date: YYYYMMDDXX).
+$plugin->version  = 2026021900;  // The current module version (Date: YYYYMMDDXX).
 $plugin->requires = 2022112801;  // Requires this Moodle version.
 $plugin->component = 'mod_techproject';   // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;
 $plugin->supported = [401, 405];
-$plugin->release = '4.5.0 (Build 2025011400)';
+$plugin->release = '4.5.0 (Build 2026021900)';
 
 // Non Moodle attributes.
 $plugin->codeincrement = '4.5.0003';

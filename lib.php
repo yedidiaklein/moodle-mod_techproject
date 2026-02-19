@@ -91,7 +91,13 @@ function techproject_supports($feature) {
  * @return the new instance id
  */
 function techproject_add_instance($project) {
-    global $DB;
+    global $DB, $USER;
+
+    $aiinstructions = '';
+    if (!empty($project->aiinstructions)) {
+        $aiinstructions = trim($project->aiinstructions);
+    }
+    unset($project->aiinstructions);
 
     $project->timecreated = time();
     $project->timemodified = time();
@@ -114,6 +120,17 @@ function techproject_add_instance($project) {
         $event->eventtype   = 'projectend';
         $event->timestart   = $project->projectend;
         calendar_event::create($event);
+
+        if ($aiinstructions !== '') {
+            $task = new \mod_techproject\task\generate_tasks_adhoc();
+            $task->set_custom_data([
+                'projectid' => $returnid,
+                'userid' => $USER->id,
+                'instructions' => $aiinstructions,
+            ]);
+            $task->set_userid($USER->id);
+            \core\task\manager::queue_adhoc_task($task);
+        }
     }
 
     return $returnid;
