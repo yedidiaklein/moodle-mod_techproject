@@ -1070,3 +1070,29 @@ $string['taskreleasenotify_tpl'] = '
 
 <p><b>Vous a désassigné cette tâche.</b>
 ';
+
+// Dashboard strings
+$string['allworkers'] = 'Tous les travailleurs';
+$string['projectdashboards'] = 'Tableaux de bord du projet';
+$string['userdashboard'] = 'Tableau de bord de mes tâches';
+$string['managerdashboard'] = 'Tableau de bord du gestionnaire';
+$string['closedtasksworkday'] = 'Tâches fermées par jour ouvrable';
+$string['closedtasksworkerweek'] = 'Tâches fermées par travailleur cette semaine';
+$string['noclosedtasksworkday'] = 'Aucune tâche fermée n\'a été trouvée les jours ouvrables pour la sélection actuelle.';
+$string['noclosedtasksworkerweek'] = 'Aucune tâche fermée cette semaine pour la sélection actuelle.';
+$string['assignedtasks'] = 'Tâches assignées';
+$string['completionrate'] = 'Taux de completion';
+$string['overdue'] = 'Retard';
+$string['status'] = 'Statut';
+$string['tasks'] = 'Tâches';
+$string['graph'] = 'Graphique';
+$string['notaskassigned'] = 'Aucune tâche n\'est assignée';
+$string['detail'] = 'Détail';
+$string['seedetail'] = 'Voir détail';
+$string['client'] = 'Client';
+$string['project'] = 'Projet';
+$string['task'] = 'Tâche';
+$string['emptyproject'] = 'Projet vide';
+$string['noprojects'] = 'Pas de projets';
+$string['assignee'] = 'Assigné à';
+$string['todo'] = 'À faire';

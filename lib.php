@@ -15,13 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Techproject module library functions.
+ *
  * @package mod_techproject
- * @subpackage framework
- * @category mod
- * @author Valery Fremaux (France) (admin@www.ethnoinformatique.fr)
- * @date 2008/03/03
- * @version phase1
- * @contributors LUU Tao Meng, So Gerard (parts of treelib.php), Guillaume Magnien, Olivier Petit
+ * @copyright 2024 Your Institution
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -164,13 +162,13 @@ function techproject_update_instance($project) {
 
     $DB->update_record('techproject', $project);
 
-    $dates = array(
+    $dates = [
         'projectstart' => $project->projectstart,
         'projectend' => $project->projectend,
-        'assessmentstart' => $project->assessmentstart);
-    $moduleid = $DB->get_field('modules', 'id', array('name' => 'techproject'));
+        'assessmentstart' => $project->assessmentstart];
+    $moduleid = $DB->get_field('modules', 'id', ['name' => 'techproject']);
     foreach ($dates as $type => $date) {
-        $params = array('modulename' => 'techproject', 'instance' => $project->id, 'eventtype' => $type);
+        $params = ['modulename' => 'techproject', 'instance' => $project->id, 'eventtype' => $type];
         if ($event = $DB->get_record('event', $params)) {
             $event->name = get_string($type.'event', 'techproject', $project->name);
             $event->description = $project->intro;
@@ -190,7 +188,7 @@ function techproject_update_instance($project) {
             $event->eventtype = $type;
             $event->timestart = $date;
             $event->timeduration = 0;
-            $params = array('module' => $moduleid, 'instance' => $project->id);
+            $params = ['module' => $moduleid, 'instance' => $project->id];
             $event->visible = $DB->get_field('course_modules', 'visible', $params);
             calendar_event::create($event);
         }
@@ -208,7 +206,7 @@ function techproject_update_instance($project) {
 function techproject_delete_instance($id) {
     global $DB;
 
-    if (! $project = $DB->get_record('techproject', array('id' => $id))) {
+    if (! $project = $DB->get_record('techproject', ['id' => $id])) {
         return false;
     }
 
@@ -217,28 +215,28 @@ function techproject_delete_instance($id) {
     // Delete any dependent records here.
 
     // Delete subrecords here.
-    $DB->delete_records('techproject_heading', array('projectid' => $project->id));
-    $DB->delete_records('techproject_task', array('projectid' => $project->id));
-    $DB->delete_records('techproject_specification', array('projectid' => $project->id));
-    $DB->delete_records('techproject_requirement', array('projectid' => $project->id));
-    $DB->delete_records('techproject_milestone', array('projectid' => $project->id));
-    $DB->delete_records('techproject_deliverable', array('projectid' => $project->id));
+    $DB->delete_records('techproject_heading', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_task', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_specification', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_requirement', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_milestone', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_deliverable', ['projectid' => $project->id]);
 
-    $DB->delete_records('techproject_task_to_spec', array('projectid' => $project->id));
-    $DB->delete_records('techproject_task_dependency', array('projectid' => $project->id));
-    $DB->delete_records('techproject_task_to_deliv', array('projectid' => $project->id));
-    $DB->delete_records('techproject_spec_to_req', array('projectid' => $project->id));
+    $DB->delete_records('techproject_task_to_spec', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_task_dependency', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_task_to_deliv', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_spec_to_req', ['projectid' => $project->id]);
 
     // Delete domain subrecords.
-    $DB->delete_records('techproject_qualifier', array('projectid' => $project->id));
-    $DB->delete_records('techproject_assessment', array('projectid' => $project->id));
-    $DB->delete_records('techproject_criterion', array('projectid' => $project->id));
+    $DB->delete_records('techproject_qualifier', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_assessment', ['projectid' => $project->id]);
+    $DB->delete_records('techproject_criterion', ['projectid' => $project->id]);
 
     // Delete any event associate with the project.
-    $DB->delete_records('event', array('modulename' => 'techproject', 'instance' => $project->id));
+    $DB->delete_records('event', ['modulename' => 'techproject', 'instance' => $project->id]);
 
     // Delete the instance itself.
-    if (! $DB->delete_records('techproject', array('id' => $project->id))) {
+    if (! $DB->delete_records('techproject', ['id' => $project->id])) {
         $result = false;
     }
 
@@ -266,16 +264,16 @@ function techproject_user_complete($course, $user, $mod, $project) {
 function techproject_user_outline($course, $user, $mod, $project) {
     global $CFG, $DB;
 
-    if ($project = $DB->get_record('techproject', array('id' => $project->id))) {
+    if ($project = $DB->get_record('techproject', ['id' => $project->id])) {
         // Counting assigned tasks.
-        $params = array('projectid' => $project->id, 'assignee' => $user->id);
+        $params = ['projectid' => $project->id, 'assignee' => $user->id];
         $assignedtasks = $DB->count_records('techproject_task', $params);
         $select = "
             projectid = ? AND
             assignee = ? AND
             done < 100 ";
-        $uncompletedtasks = $DB->count_records_select('techproject_task', $select, array($project->id, $user->id));
-        $ownedtasks = $DB->count_records('techproject_task', array('projectid' => $project->id, 'owner' => $user->id));
+        $uncompletedtasks = $DB->count_records_select('techproject_task', $select, [$project->id, $user->id]);
+        $ownedtasks = $DB->count_records('techproject_task', ['projectid' => $project->id, 'owner' => $user->id]);
         $outline = new stdClass();
         $outline->info = get_string('haveownedtasks', 'techproject', $ownedtasks);
         $outline->info .= '<br/>'.get_string('haveassignedtasks', 'techproject', $assignedtasks);
@@ -291,7 +289,7 @@ function techproject_user_outline($course, $user, $mod, $project) {
                 (owner = ? OR
                 assignee = ?)
         ";
-        if ($lastrecord = $DB->get_record_sql($sql, array($project->id, $user->id, $user->id))) {
+        if ($lastrecord = $DB->get_record_sql($sql, [$project->id, $user->id, $user->id])) {
             $outline->time = $lastrecord->modified;
         } else {
             $outline->time = $project->timemodified;
@@ -330,7 +328,7 @@ function techproject_reset_course_form_definition(&$mform) {
     global $COURSE, $DB;
 
     $mform->addElement('header', 'teachprojectheader', get_string('modulenameplural', 'techproject'));
-    if (!$techprojects = $DB->get_records('techproject', array('course' => $COURSE->id))) {
+    if (!$techprojects = $DB->get_records('techproject', ['course' => $COURSE->id])) {
         return;
     }
 
@@ -352,7 +350,7 @@ function techproject_reset_course_form_definition(&$mform) {
 function techproject_reset_userdata($data) {
     global $CFG, $DB;
 
-    $status = array();
+    $status = [];
     $componentstr = get_string('modulenameplural', 'techproject');
     $strreset = get_string('reset');
     if ($data->reset_techproject_grades || $data->reset_techproject_criteria || $data->reset_techproject_groups) {
@@ -368,9 +366,9 @@ function techproject_reset_userdata($data) {
                 c.course={$data->courseid} )
          ";
         if ($DB->execute($sql)) {
-            $status[] = array('component' => $componentstr,
+            $status[] = ['component' => $componentstr,
                               'item' => get_string('resetting_grades', 'techproject'),
-                              'error' => false);
+                              'error' => false];
         }
     }
 
@@ -387,9 +385,9 @@ function techproject_reset_userdata($data) {
                 c.course={$data->courseid} )
          ";
         if ($DB->execute($sql)) {
-            $status[] = array('component' => $componentstr,
+            $status[] = ['component' => $componentstr,
                               'item' => get_string('resetting_criteria', 'techproject'),
-                              'error' => false);
+                              'error' => false];
         }
     }
 
@@ -405,7 +403,7 @@ function techproject_reset_userdata($data) {
                 groupid != 0
          ";
 
-        $deletetables = array('spec_to_req',
+        $deletetables = ['spec_to_req',
                               'task_to_spec',
                               'task_to_deliv',
                               'task_dependency',
@@ -413,7 +411,7 @@ function techproject_reset_userdata($data) {
                               'specification',
                               'task',
                               'deliverable',
-                              'heading');
+                              'heading'];
 
         if ($data->reset_techproject_milestones) {
             $deletetables[] = 'milestone';
@@ -427,9 +425,9 @@ function techproject_reset_userdata($data) {
             $DB->execute($sql);
         }
 
-        $status[] = array('component' => $componentstr,
+        $status[] = ['component' => $componentstr,
                           'item' => get_string('resetting_groupprojects', 'techproject'),
-                          'error' => false);
+                          'error' => false];
     }
 
     if ($data->reset_techproject_group0) {
@@ -444,7 +442,7 @@ function techproject_reset_userdata($data) {
                 groupid = 0
          ";
 
-        $deletetables = array('spec_to_req',
+        $deletetables = ['spec_to_req',
                               'task_to_spec',
                               'task_to_deliv',
                               'task_dependency',
@@ -452,7 +450,7 @@ function techproject_reset_userdata($data) {
                               'specification',
                               'task',
                               'deliverable',
-                              'heading');
+                              'heading'];
 
         if ($data->reset_techproject_milestones) {
             $deletetables[] = 'milestone';
@@ -465,9 +463,9 @@ function techproject_reset_userdata($data) {
             ";
             $DB->execute($sql);
         }
-        $status[] = array('component' => $componentstr,
+        $status[] = ['component' => $componentstr,
                           'item' => get_string('resetting_courseproject', 'techproject'),
-                          'error' => false);
+                          'error' => false];
     }
     return $status;
 }
@@ -515,10 +513,10 @@ function techproject_get_grade_logs($course, $timestart) {
             u.id = e.userid AND
             e.id = a.projectid
     ";
-    $params = array($timestart,
+    $params = [$timestart,
                     $timeend,
                     $course->id,
-                    $USER->id);
+                    $USER->id];
     return $DB->get_records_sql($query, $params);
 }
 
@@ -553,10 +551,10 @@ function techproject_get_entitychange_logs($course, $timestart, $changekey) {
             p.id = l.info AND
             u.id = l.userid
     ";
-    $params = array($timestart,
+    $params = [$timestart,
                     $timeend,
                     $course->id,
-                    $changekey);
+                    $changekey];
     return $DB->get_records_sql($query, $params);
 }
 
@@ -591,9 +589,9 @@ function techproject_get_submit_logs($course, $timestart) {
             e.id = l.info AND
             u.id = l.userid
     ";
-    $params = array($timestart,
+    $params = [$timestart,
                     $timeend,
-                    $course->id);
+                    $course->id];
     return $DB->get_records_sql($query, $params);
 }
 
@@ -886,11 +884,11 @@ function techproject_print_recent_activity($course, $isteacher, $timestart) {
 function techproject_grades($cmid) {
     global $CFG, $DB;
 
-    if (!$module = $DB->get_record('course_modules', array('id' => $cmid))) {
+    if (!$module = $DB->get_record('course_modules', ['id' => $cmid])) {
         return null;
     }
 
-    if (!$project = $DB->get_record('techproject', array('id' => $module->instance))) {
+    if (!$project = $DB->get_record('techproject', ['id' => $module->instance])) {
         return null;
     }
 
@@ -917,7 +915,7 @@ function techproject_grades($cmid) {
     if ($grades) {
         if ($project->grade > 0 ) {
             // Grading numerically.
-            $finalgrades = array();
+            $finalgrades = [];
             foreach ($grades as $agrade) {
                 $finalgrades[$agrade->userid] = @$finalgrades[$agrade->userid] + $agrade->grade * $agrade->weight;
                 $totalweights[$agrade->userid] = @$totalweights[$agrade->userid] + $agrade->weight;
@@ -933,10 +931,10 @@ function techproject_grades($cmid) {
             $return->maxgrade = $project->grade;
         } else {
             // Scales.
-            $finalgrades = array();
+            $finalgrades = [];
             $scaleid = - ($project->grade);
             $maxgrade = '';
-            if ($scale = $DB->get_record('scale', array('id' => $scaleid))) {
+            if ($scale = $DB->get_record('scale', ['id' => $scaleid])) {
                 $scalegrades = make_menu_from_list($scale->scale);
                 foreach ($grades as $agrade) {
                     $finalgrades[$agrade->userid] = @$finalgrades[$agrade->userid] + $scalegrades[$agrade->grade] * $agrade->weight;
@@ -966,7 +964,7 @@ function techproject_grades($cmid) {
 function techproject_scale_used_anywhere($scaleid) {
     global $DB;
 
-    if ($scaleid && $DB->record_exists('techproject', array('grade' => -$scaleid))) {
+    if ($scaleid && $DB->record_exists('techproject', ['grade' => -$scaleid])) {
         return true;
     } else {
         return false;
@@ -985,15 +983,15 @@ function techproject_scale_used_anywhere($scaleid) {
 function techproject_get_participants($moduleid) {
     global $DB;
 
-    $usersreqs = $DB->get_records('techproject_requirement', array('projectid' => $moduleid), '', 'userid,userid');
-    $usersspecs = $DB->get_records('techproject_specification', array('projectid' => $moduleid), '', 'userid,userid');
-    $userstasks = $DB->get_records('techproject_task', array('projectid' => $moduleid), '', 'userid,userid');
-    $userstasksassigned = $DB->get_records('techproject_task', array('projectid' => $moduleid), '', 'assignee,assignee');
-    $userstasksowners = $DB->get_records('techproject_task', array('projectid' => $moduleid), '', 'owner,owner');
-    $usersdelivs = $DB->get_records('techproject_deliverable', array('projectid' => $moduleid), '', 'userid,userid');
-    $usersmiles = $DB->get_records('techproject_milestone', array('projectid' => $moduleid), '', 'userid,userid');
+    $usersreqs = $DB->get_records('techproject_requirement', ['projectid' => $moduleid], '', 'userid,userid');
+    $usersspecs = $DB->get_records('techproject_specification', ['projectid' => $moduleid], '', 'userid,userid');
+    $userstasks = $DB->get_records('techproject_task', ['projectid' => $moduleid], '', 'userid,userid');
+    $userstasksassigned = $DB->get_records('techproject_task', ['projectid' => $moduleid], '', 'assignee,assignee');
+    $userstasksowners = $DB->get_records('techproject_task', ['projectid' => $moduleid], '', 'owner,owner');
+    $usersdelivs = $DB->get_records('techproject_deliverable', ['projectid' => $moduleid], '', 'userid,userid');
+    $usersmiles = $DB->get_records('techproject_milestone', ['projectid' => $moduleid], '', 'userid,userid');
 
-    $allusers = array();
+    $allusers = [];
     if (!empty($usersreqs)) {
         $allusers = array_keys($usersreqs);
     }
@@ -1016,7 +1014,7 @@ function techproject_get_participants($moduleid) {
         $allusers = array_merge($allusers, array_keys($userstasksmiles));
     }
     $userlist = implode("','", $allusers);
-    $participants = $DB->get_records_list('user', array('id' => "'$userlist'"));
+    $participants = $DB->get_records_list('user', ['id' => "'$userlist'"]);
     return $participants;
 }
 
@@ -1035,7 +1033,7 @@ function techproject_scale_used($cmid, $scaleid) {
     $return = false;
 
     // Note : scales are assigned using negative index in the grade field of project (see mod/assignement/lib.php).
-    $rec = $DB->get_record('techproject', array('id' => $cmid, 'grade' => -$scaleid));
+    $rec = $DB->get_record('techproject', ['id' => $cmid, 'grade' => -$scaleid]);
 
     if (!empty($rec) && !empty($scaleid)) {
         $return = true;
@@ -1063,16 +1061,16 @@ function techproject_pluginfile($course, $cm, $context, $filearea, $args, $force
 
     require_course_login($course, true, $cm);
 
-    $fileareas = array('intro', 'requirementdescription', 'specificationdescription', 'milestonedescription', 'taskdescription',
-                       'deliverabledescription', 'abstract', 'rationale', 'environment');
-    $areastotables = array('requirementdescription' => 'techproject_requirement',
+    $fileareas = ['intro', 'requirementdescription', 'specificationdescription', 'milestonedescription', 'taskdescription',
+                       'deliverabledescription', 'abstract', 'rationale', 'environment'];
+    $areastotables = ['requirementdescription' => 'techproject_requirement',
                            'specificationdescription' => 'techproject_specifciation',
                            'milestonedescription' => 'techproject_milestone',
                            'taskdescription' => 'techproject_task',
                            'deliverabledescription' => 'techproject_deliverable',
                            'abstract' => 'techproject_heading',
                            'rationale' => 'techproject_heading',
-                           'environment' => 'techproject_heading');
+                           'environment' => 'techproject_heading'];
 
     if (!in_array($filearea, $fileareas)) {
         return false;
@@ -1082,27 +1080,27 @@ function techproject_pluginfile($course, $cm, $context, $filearea, $args, $force
 
     $entryid = (int)array_shift($args);
 
-    if (!$project = $DB->get_record('techproject', array('id' => $cm->instance))) {
+    if (!$project = $DB->get_record('techproject', ['id' => $cm->instance])) {
         return false;
     }
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
     $fullpath = "/$context->id/mod_techproject/$filearea/$entryid/$relativepath";
-    if (!($file = $fs->get_file_by_hash(sha1($fullpath))) or $file->is_directory()) {
+    if (!($file = $fs->get_file_by_hash(sha1($fullpath))) || $file->is_directory()) {
         return false;
     }
 
-    $entry = $DB->get_record($relatedtable, array('id' => $entryid));
+    $entry = $DB->get_record($relatedtable, ['id' => $entryid]);
 
     // Make sure groups allow this user to see this file.
-    if ($entry->groupid > 0 and $groupmode = groups_get_activity_groupmode($cm, $course)) {
+    if ($entry->groupid > 0 && $groupmode = groups_get_activity_groupmode($cm, $course)) {
         // Groups are being used.
         if (!groups_group_exists($entry->groupid)) { // Can't find group.
             return false;                           // Be safe and don't send it to anyone.
         }
 
-        if (!groups_is_member($entry->groupid) and !has_capability('moodle/site:accessallgroups', $context)) {
+        if (!groups_is_member($entry->groupid) && !has_capability('moodle/site:accessallgroups', $context)) {
             // Do not send posts from other groups when in SEPARATEGROUPS or VISIBLEGROUPS.
             return false;
         }
@@ -1120,18 +1118,50 @@ function techproject_pluginfile($course, $cm, $context, $filearea, $args, $force
  * This function allows the tool_dbcleaner to register integrity checks
  */
 function techproject_dbcleaner_add_keys() {
-    $keys = array(
-        array('techproject', 'course', 'course', 'id', ''),
-        array('techproject_heading', 'projectid', 'techproject', 'id', ''),
-        array('techproject_requirement', 'projectid', 'techproject', 'id', ''),
-        array('techproject_specification', 'projectid', 'techproject', 'id', ''),
-        array('techproject_task', 'projectid', 'techproject', 'id', ''),
-        array('techproject_milestone', 'projectid', 'techproject', 'id', ''),
-        array('techproject_deliverable', 'projectid', 'techproject', 'id', ''),
-        array('techproject_assessment', 'projectid', 'techproject', 'id', ''),
-        array('techproject_criterion', 'projectid', 'techproject', 'id', ''),
-        array('techproject_spec_to_req', 'projectid', 'techproject', 'id', ''),
-    );
+    $keys = [
+        ['techproject', 'course', 'course', 'id', ''],
+        ['techproject_heading', 'projectid', 'techproject', 'id', ''],
+        ['techproject_requirement', 'projectid', 'techproject', 'id', ''],
+        ['techproject_specification', 'projectid', 'techproject', 'id', ''],
+        ['techproject_task', 'projectid', 'techproject', 'id', ''],
+        ['techproject_milestone', 'projectid', 'techproject', 'id', ''],
+        ['techproject_deliverable', 'projectid', 'techproject', 'id', ''],
+        ['techproject_assessment', 'projectid', 'techproject', 'id', ''],
+        ['techproject_criterion', 'projectid', 'techproject', 'id', ''],
+        ['techproject_spec_to_req', 'projectid', 'techproject', 'id', ''],
+    ];
 
     return $keys;
+}
+
+/**
+ * Extend course navigation with a link to the techproject dashboards page.
+ *
+ * Moodle 4.5+ callback.
+ *
+ * @param settings_navigation $navigation
+ * @param stdClass $course
+ * @param context_course $context
+ */
+function mod_techproject_extend_navigation_course($navigation, $course, $context): void {
+    global $DB;
+
+    if (!has_capability('moodle/course:view', $context)) {
+        return;
+    }
+
+    if (!$DB->record_exists('techproject', ['course' => $course->id])) {
+        return;
+    }
+
+    $url = new moodle_url('/mod/techproject/dashboard.php', ['id' => $course->id]);
+    $node = navigation_node::create(
+        get_string('projectdashboards', 'techproject'),
+        $url,
+        navigation_node::TYPE_SETTING,
+        null,
+        'techprojectdashboards',
+        new pix_icon('i/report', '')
+    );
+    $navigation->add_node($node);
 }

@@ -19,13 +19,9 @@
  *
  * This page lists all the instances of project in a particular course.
  *
- * @package mod-techproject
- * @subpackage framework
- * @category mod
- * @author Valery Fremaux (France) (admin@www.ethnoinformatique.fr)
- * @contributors LUU Tao Meng, So Gerard (parts of treelib.php), Guillaume Magnien, Olivier Petit
- * @date 2008/03/03
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package mod_techproject
+ * @copyright 2024 Your Institution
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require('../../config.php');
@@ -35,13 +31,15 @@ require_once($CFG->dirroot.'/mod/techproject/locallib.php');
 
 $id = required_param('id', PARAM_INT);   // Course id.
 
-if (!$course = $DB->get_record('course', array('id' => $id))) {
+if (!$course = $DB->get_record('course', ['id' => $id])) {
     error("Course ID is incorrect");
 }
 
 require_login($course->id);
 
-$event = \mod_techproject\event\course_module_instance_list_viewed::create(array('context' => $context));
+$context = context_course::instance($course->id);
+
+$event = \mod_techproject\event\course_module_instance_list_viewed::create(['context' => $context]);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
@@ -53,7 +51,7 @@ $strproject  = get_string('modulename', 'techproject');
 // Print the header.
 
 if ($course->category) {
-    $courseurl = new moodle_url('course/view.php', array('id' => $course->id));
+    $courseurl = new moodle_url('course/view.php', ['id' => $course->id]);
     $navigation = '<a href="'.$courseurl.'">'.$course->shortname.'</a> ->';
 }
 
@@ -68,10 +66,34 @@ echo $OUTPUT->header();
 // Get all the appropriate data.
 
 if (! $projects = get_all_instances_in_course('techproject', $course)) {
-    $returnurl = new moodle_url('/course/view.php', array('id' => $course->id));
+    $returnurl = new moodle_url('/course/view.php', ['id' => $course->id]);
     echo $OUTPUT->notification(get_string('noprojects', 'techproject'), $returnurl);
     die;
 }
+
+$userdashboardurl = new moodle_url('/mod/techproject/dashboard.php', ['id' => $course->id, 'scope' => 'user']);
+$managerdashboardurl = new moodle_url('/mod/techproject/dashboard.php', ['id' => $course->id, 'scope' => 'manager']);
+$coursecontext = context_course::instance($course->id);
+$canmanagescope = has_capability('moodle/course:update', $coursecontext);
+if (!$canmanagescope) {
+    foreach ($projects as $aproject) {
+        $cmcontext = context_module::instance($aproject->coursemodule);
+        $hasgrade = has_capability('mod/techproject:gradeproject', $cmcontext);
+        $hasview = has_capability('mod/techproject:viewprojectcontrols', $cmcontext);
+        if ($hasgrade || $hasview) {
+            $canmanagescope = true;
+            break;
+        }
+    }
+}
+echo html_writer::start_div('techproject-dashboard-links');
+$usertext = get_string('userdashboard', 'techproject');
+echo $OUTPUT->single_button($userdashboardurl, $usertext, 'get');
+if ($canmanagescope) {
+    $managertext = get_string('managerdashboard', 'techproject');
+    echo $OUTPUT->single_button($managerdashboardurl, $managertext, 'get');
+}
+echo html_writer::end_div();
 
 // Print the list of instances (your module will probably extend this).
 
@@ -81,21 +103,22 @@ $strgrade  = get_string('grade');
 $strprojectend = get_string('projectend', 'techproject');
 $strweek  = get_string('week');
 $strtopic  = get_string('topic');
-$table = new stdClass;
+$table = new html_table();
 
 if ($course->format == 'weeks') {
-    $table->head  = array ($strweek, $strname, $strgrade, $strprojectend);
-    $table->align = array ('center', 'left', 'center', 'center');
+    $table->head  = [$strweek, $strname, $strgrade, $strprojectend];
+    $table->align = ['center', 'left', 'center', 'center'];
 } else if ($course->format == 'topics') {
-    $table->head  = array ($strtopic, $strname, $strgrade, $strprojectend);
-    $table->align = array ('center', 'left', 'center', 'center');
+    $table->head  = [$strtopic, $strname, $strgrade, $strprojectend];
+    $table->align = ['center', 'left', 'center', 'center'];
 } else {
-    $table->head  = array ($strname, $strgrade, $strprojectend);
-    $table->align = array ('left', 'center', 'center');
+    $table->head  = [$strname, $strgrade, $strprojectend];
+    $table->align = ['left', 'center', 'center'];
 }
 
 foreach ($projects as $project) {
-    $linkurl = new moodle_url('/mod/techproject/view.php', array('id' => $project->coursemodule));
+    $cmcontext = context_module::instance($project->coursemodule);
+    $linkurl = new moodle_url('/mod/techproject/view.php', ['id' => $project->coursemodule]);
     if (!$project->visible) {
         // Show dimmed if the mod is hidden.
         $link = '<a class="dimmed" href="'.$linkurl.'">'.format_string($project->name, true).'</a>';
@@ -111,7 +134,7 @@ foreach ($projects as $project) {
     }
 
     if ($course->format == 'weeks' || $course->format == 'topics') {
-        if (isteacher($course->id)) {
+        if (has_capability('mod/techproject:gradeproject', $cmcontext) || has_capability('moodle/course:update', $context)) {
             $gradevalue = @$project->grade;
         } else {
             // It's a student, show their mean or maximum grade.
@@ -140,7 +163,7 @@ foreach ($projects as $project) {
                     GROUP BY
                         userid
                 ";
-                $grade = $DB->get_record_sql($sql, array($project->id, $USER->id));
+                $grade = $DB->get_record_sql($sql, [$project->id, $USER->id]);
             }
             if ($grade) {
                 // Grades are stored as percentages.
@@ -149,9 +172,9 @@ foreach ($projects as $project) {
                 $gradevalue = 0;
             }
         }
-        $table->data[] = array ($project->section, $link, $gradevalue, $due);
+        $table->data[] = [$project->section, $link, $gradevalue, $due];
     } else {
-        $table->data[] = array ($link, $gradevalue, $due);
+        $table->data[] = [$link, $gradevalue, $due];
     }
 }
 

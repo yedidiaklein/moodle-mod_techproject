@@ -469,3 +469,92 @@ img.techproject-bargraph {
 .block.detail li {
     margin-bottom:8px;
 }
+
+.path-mod-techproject .techproject-dashboard-pies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.path-mod-techproject .techproject-dashboard-pie {
+    flex: 0 1 260px;
+    min-width: 220px;
+    max-width: 280px;
+}
+
+.path-mod-techproject .techproject-dashboard-pie canvas,
+.path-mod-techproject .techproject-dashboard-pie svg {
+    max-width: 260px;
+    max-height: 220px;
+}
+
+.path-mod-techproject .techproject-dashboard-bars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.path-mod-techproject .techproject-dashboard-bar {
+    flex: 1 1 420px;
+    min-width: 320px;
+}
+
+.techproject-dashboard-graphs {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+    width: 100%;
+}
+
+.techproject-dashboard-graph {
+    min-width: 0;
+    overflow: visible;
+}
+
+.techproject-dashboard-graph canvas,
+.techproject-dashboard-graph svg {
+    max-width: 100%;
+    max-height: none;
+}
+
+.techproject-dashboard-graph .chart,
+.techproject-dashboard-graph .chart-image,
+.techproject-dashboard-graph .chart-table {
+    width: 100% !important;
+}
+
+.techproject-dashboard-graph .chart {
+    min-height: 240px;
+}
+
+@media (max-width: 767px) {
+    .path-mod-techproject .techproject-dashboard-pies {
+        display: block;
+    }
+
+    .path-mod-techproject .techproject-dashboard-pie {
+        min-width: 0;
+        margin-bottom: 1rem;
+    }
+
+    .path-mod-techproject .techproject-dashboard-bars {
+        display: block;
+    }
+
+    .path-mod-techproject .techproject-dashboard-bar {
+        min-width: 0;
+        margin-bottom: 1rem;
+    }
+
+    .techproject-dashboard-graphs {
+        display: block !important;
+    }
+
+    .techproject-dashboard-graph {
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+}
