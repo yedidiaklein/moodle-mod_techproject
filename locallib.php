@@ -2181,7 +2181,7 @@ function close_unclosed($string, $opentag, $closetag) {
  * @param int $scope the value scope which is assimilable to a project id or 0 if global scope
  * @param string $sortby
  */
-function techproject_get_domain($domain, $id, $how = false, $scope, $sortby = 'label') {
+function techproject_get_domain($domain, $id, $how = false, $scope = 0, $sortby = 'label') {
     global $DB;
 
     if (empty($id)) {
